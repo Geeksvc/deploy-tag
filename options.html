@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deploy Tag settings</title>
+<link rel="stylesheet" href="options.css">
+</head>
+<body>
+<main>
+  <h1>Deploy Tag</h1>
+  <p class="sub">Shows which tool, launchpad or operator made a token, read from its metadata URI. Works on Solana and EVM chains (BSC, Robinhood, Base, Ethereum, Avalanche). Clicking a badge opens the token on its explorer.</p>
+
+  <section>
+    <h2>Helius API key <span class="chain chain-sol">SOL</span></h2>
+    <p class="hint">Free at dashboard.helius.dev. Stored only in this browser.</p>
+    <div class="row">
+      <input id="key" class="keyfield" type="password" placeholder="Paste your Helius key" autocomplete="off" spellcheck="false">
+      <button id="saveKey">Save</button>
+      <button id="showKey" class="ghost">Show</button>
+    </div>
+    <p id="keyStatus" class="status"></p>
+  </section>
+
+  <section>
+    <h2>Alchemy API key <span id="evmTags"></span></h2>
+    <p class="hint">One key covers every EVM chain below. Free at dashboard.alchemy.com; turn each network on for your app. A chain that isn't turned on is skipped without affecting the others. BSC still works without a key (public RPC).</p>
+    <div class="row">
+      <input id="alchemyKey" class="keyfield" type="password" placeholder="Paste your Alchemy key" autocomplete="off" spellcheck="false">
+      <button id="saveAlchemy">Save</button>
+      <button id="showAlchemy" class="ghost">Show</button>
+    </div>
+    <p id="alchemyStatus" class="status"></p>
+    <ul id="alchemyChains" class="chainstatus"></ul>
+    <details id="advanced">
+      <summary>Advanced: your own RPC URLs</summary>
+      <p class="hint">Leave empty to use Alchemy (or the public BSC RPC when there's no key). Chrome will ask for permission to reach a custom host.</p>
+      <div id="rpcRows"></div>
+      <div class="row"><button id="saveRpc">Save RPC URLs</button></div>
+      <p id="rpcStatus" class="status"></p>
+    </details>
+  </section>
+
+  <section>
+    <h2>Deep scan (launch transaction)</h2>
+    <p class="hint">Optional, off by default. When no metadata getter on an EVM token answers, look up the token's creation transaction and search its input for a link. Needs an explorer API key: <b>Blockscout PRO</b> (one free key for all its chains) or <b>Etherscan API V2</b> (the free tier skips some chains, BSC and Base included). At most about 3 scans a second; "nothing found" is remembered for a day.</p>
+    <label class="check"><input type="checkbox" id="deepScan"> Turn on deep scan</label>
+    <div class="row">
+      <select id="explorerApi"><option value="blockscout">Blockscout PRO API</option><option value="etherscan">Etherscan API V2</option></select>
+      <input id="explorerKey" class="keyfield" type="password" placeholder="Explorer API key" autocomplete="off" spellcheck="false">
+      <button id="saveExplorer">Save &amp; test</button>
+      <button id="showExplorer" class="ghost">Show</button>
+    </div>
+    <p id="explorerStatus" class="status"></p>
+    <ul id="explorerChains" class="chainstatus"></ul>
+  </section>
+
+  <section>
+    <h2>Badges</h2>
+    <div id="legend" class="legend"></div>
+    <label class="check"><input type="checkbox" id="hideFourMeme"> Hide skip-list badges like <span class="dtag dtag-quiet">4m</span> (launchpads that keep no metadata on-chain)</label>
+    <p class="hint skiplist">Skip list (edit <span class="mono">DEPLOY_TAG_SKIP</span> in labels.js to add more): <span id="skipList"></span></p>
+  </section>
+
+  <section>
+    <h2>Labels</h2>
+    <p class="hint">Domain → what the badge says. Matches subdomains too, and a rule can include a path (<span class="mono">storage.googleapis.com/padre-user-content-store</span>). The most specific rule wins, and your rule beats a built-in one for the same match.</p>
+    <table id="rules">
+      <thead><tr><th>Domain</th><th>Label</th><th>Type</th><th>Preview</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="row add">
+      <input id="newMatch" placeholder="uxento.io" spellcheck="false">
+      <input id="newLabel" placeholder="UXENTO" spellcheck="false">
+      <select id="newKind"></select>
+      <button id="addRule">Add label</button>
+    </div>
+    <div class="row">
+      <button id="exportLabels" class="ghost">Export labels</button>
+      <button id="toggleImport" class="ghost">Import labels</button>
+    </div>
+    <div id="importBox" class="importbox" hidden>
+      <p class="hint">Paste or upload a JSON array of <span class="mono">{"match", "label", "kind"}</span>. Kinds: tool, bundler, launchpad, operator, warning, quiet, hide.</p>
+      <textarea id="importText" class="mono" rows="6" spellcheck="false" placeholder='[{"match": "example.com", "label": "EXAMPLE", "kind": "tool"}]'></textarea>
+      <div class="row">
+        <input id="importFile" type="file" accept=".json,application/json">
+        <button id="importPreview">Preview</button>
+      </div>
+      <div id="importResult"></div>
+    </div>
+    <details>
+      <summary>Built-in labels</summary>
+      <table id="defaults"><thead><tr><th>Domain</th><th>Type</th><th>Badge</th></tr></thead><tbody></tbody></table>
+      <p class="hint">Add your own label for the same domain to override one of these.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>Domains seen</h2>
+    <p class="hint">Every metadata domain the extension has come across. New tools show up here first — give them a label when you figure out who they are.</p>
+    <div class="row">
+      <label class="lbl" for="seenFilter">Show</label>
+      <select id="seenFilter"></select>
+      <span id="seenCount" class="hint inline"></span>
+    </div>
+    <table id="seen">
+      <thead><tr><th>Domain</th><th>Chains</th><th>Tokens</th><th>Last seen</th><th>Badge now</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p id="seenEmpty" class="hint">Nothing yet. Open Pulse on GMGN, Axiom or BasedBot.</p>
+    <div class="row">
+      <label class="lbl" for="exportFormat">Export as</label>
+      <select id="exportFormat"><option value="json">JSON</option><option value="csv">CSV</option></select>
+      <button id="exportUnlabeled" class="ghost">Export unlabeled</button>
+      <button id="exportAll" class="ghost">Export all domains</button>
+    </div>
+    <div class="row">
+      <button id="clearSeen" class="ghost">Clear list</button>
+      <button id="clearCache" class="ghost">Clear lookup cache</button>
+    </div>
+  </section>
+</main>
+<script src="labels.js"></script>
+<script src="options.js"></script>
+</body>
+</html>

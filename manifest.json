@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "Deploy Tag",
+  "version": "0.2.1",
+  "description": "Shows which tool, launchpad or operator made a Solana or EVM token (from its metadata URI) on GMGN, Axiom and BasedBot.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://mainnet.helius-rpc.com/*",
+    "https://bnb-mainnet.g.alchemy.com/*",
+    "https://robinhood-mainnet.g.alchemy.com/*",
+    "https://bsc-dataseed.binance.org/*",
+    "https://base-mainnet.g.alchemy.com/*",
+    "https://eth-mainnet.g.alchemy.com/*",
+    "https://avax-mainnet.g.alchemy.com/*",
+    "https://api.etherscan.io/*",
+    "https://api.blockscout.com/*",
+    "https://gmgn.ai/*",
+    "https://axiom.trade/*",
+    "https://basedbot.app/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://gmgn.ai/*",
+        "https://axiom.trade/*",
+        "https://basedbot.app/*"
+      ],
+      "js": [
+        "labels.js",
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html",
+  "action": {
+    "default_title": "Deploy Tag settings",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
